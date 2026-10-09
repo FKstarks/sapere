@@ -298,6 +298,7 @@ function viewToday() {
   var h = '<header class="head"><div><div class="eyebrow">' + esc(date) + '</div><h1 class="title">Aujourd\'hui</h1></div>' +
     '<div style="display:flex;align-items:center;gap:8px"><div class="pill">' + I.flame + '<span>' + plural(st, 'jour') + '</span></div>' + avaBtn() + '</div></header>';
 
+  h += dashStats() + '<div class="dash-main">';
   if (isWeekend()) {
     h += '<section class="feature" style="background:#2D3E8F"><div class="eyebrow" style="color:#C9D2FF">C\'est le week-end</div>' +
       '<p class="big">Commence par un jeu sur tes mots de la semaine.</p><button class="btn" style="background:#FFFFFF;color:#1F2C6B" data-a="game" data-g="devine">Jouer à Devine le mot</button></section>';
@@ -319,6 +320,7 @@ function viewToday() {
   /* 2. fiche du jour */
   if (d.done) {
     var lf = byId[d.fiche];
+    if (lf) h += '<div class="wide-cover">' + coverCard(lf, 'Fiche du jour · apprise', 'fiche-read').replace('<span class="go">Lire</span>', '<span class="go">Relire</span>') + '</div>';
     h += '<section class="card"><div class="eyebrow">Fiche du jour</div><div class="done">' + I.check + '<span>' + esc(lf ? lf.mot : 'Fiche') + ' est dans ta collection</span></div>';
     if (d.bonusDone) h += '<div class="done">' + I.check + '<span>Fiche bonus terminée : ' + esc(byId[d.bonus] ? byId[d.bonus].mot : '') + '</span></div>';
     else if (pickFiche()) h += '<button class="btn soft" data-a="bonus">Lire une fiche bonus</button>';
@@ -335,6 +337,7 @@ function viewToday() {
   }
 
   /* 3. question du jour */
+  h += dashPair() + '</div><div class="dash-side">';
   var q = todayQuestion();
   if (q) {
     h += '<section class="card"><div class="row"><div class="eyebrow">Question du jour</div><span class="tag">' + esc(q.theme) + '</span></div>' + qVisual(q) + '<p class="big" style="font-size:19px">' + esc(q.q) + '</p><div class="opts">';
@@ -349,7 +352,37 @@ function viewToday() {
     if (picked != null) h += '<p class="note">' + q.explain + '</p>';
     h += '</section>';
   }
+  h += catCard('wide-only') + lastCard() + '</div>';
   return h;
+}
+
+/* widgets du tableau de bord (iPad et Mac) */
+function statTile(icon, big, label) { return '<div class="stat"><span class="stat-ic">' + icon + '</span><span><b>' + big + '</b><span>' + label + '</span></span></div>'; }
+function dashStats() {
+  var st = stats(), lv = level(st);
+  return '<div class="dash-stats wide-only">' + statTile(I.flame, plural(streakNow(), 'jour'), 'd\'affilée') + statTile(I.rings, 'Niveau ' + lv.lv, lv.title + ' · ' + lv.xp + ' points') +
+    statTile(I.books, st.fiches + ' sur ' + C.fiches.length, 'fiches apprises') + statTile(I.q, st.qok + ' sur ' + st.qtot, 'questions du jour réussies') + '</div>';
+}
+function catCard(cls) {
+  var h = '<section class="card ' + (cls || '') + '"><div class="eyebrow">Par catégorie</div>';
+  Object.keys(CATS).forEach(function (c) {
+    var tot = C.fiches.filter(function (f) { return f.cat === c; }).length; if (!tot) return;
+    var n = C.fiches.filter(function (f) { return f.cat === c && S.words[f.id]; }).length;
+    h += '<div><div class="row"><span style="font-weight:600;font-size:15px">' + esc(CATS[c].n) + '</span><span class="small">' + n + ' sur ' + tot + '</span></div><div class="meter"><i style="width:' + Math.round(100 * n / tot) + '%;background:' + (c === 'ailleurs' || c === 'luxe' ? 'var(--gold)' : CATS[c].c) + '"></i></div></div>';
+  });
+  return h + '</section>';
+}
+function dashPair() {
+  var h = '<div class="dash-pair wide-only">', b = C.breves.filter(function (x) { return !S.breves[x.id]; })[0] || C.breves[0];
+  if (b) { var t = bt(b); h += '<button class="bcard" data-a="breve" data-id="' + b.id + '"><span class="btop" style="background:' + t[0] + '">' + ic(t[1]) + '<span class="bth">Une Brève · ' + esc(b.theme) + '</span><span class="tag new">1 min</span></span><span class="bbody"><span class="big">' + esc(b.titre) + '</span><span class="muted">' + esc(b.accroche) + '</span></span></button>'; }
+  return h + '<section class="feature" style="background:#B4500F"><div class="eyebrow" style="color:#FFE3CC">Une pause ?</div><p class="big">Quiz culture : 7 questions d\'histoire, de géo et de drapeaux.</p><button class="btn" style="background:#FFFFFF;color:#7A3408" data-a="game" data-g="culture">Jouer</button></section></div>';
+}
+function lastCard() {
+  var last = C.fiches.filter(function (f) { return S.words[f.id]; }).sort(function (a, c) { return S.words[a.id].learned < S.words[c.id].learned ? 1 : -1; }).slice(0, 4);
+  var h = '<section class="card wide-only"><div class="row"><div class="eyebrow">Derniers mots appris</div><button class="link" style="min-height:0" data-a="tab" data-t="collection">Tout voir</button></div>';
+  if (!last.length) h += '<p class="muted">Ta première fiche apparaîtra ici.</p>';
+  last.forEach(function (f) { var x = status(f.id); h += '<button class="item" data-a="fiche-read" data-id="' + f.id + '"><span class="sw" style="background:' + CATS[f.cat].c + '">' + art(f) + '</span><span class="tx"><b>' + esc(f.mot) + '</b><span class="small">' + catLine(f) + '</span></span><span class="tag ' + x[1] + '">' + x[0] + '</span></button>'; });
+  return h + '</section>';
 }
 
 /* ---------- fiche ---------- */
@@ -750,13 +783,7 @@ function viewBilan() {
   });
   h += '</div></section>';
 
-  h += '<section class="card"><div class="eyebrow">Par catégorie</div>';
-  Object.keys(CATS).forEach(function (c) {
-    var tot = C.fiches.filter(function (f) { return f.cat === c; }).length; if (!tot) return;
-    var n = C.fiches.filter(function (f) { return f.cat === c && S.words[f.id]; }).length;
-    h += '<div><div class="row"><span style="font-weight:600;font-size:15px">' + esc(CATS[c].n) + '</span><span class="small">' + n + ' sur ' + tot + '</span></div><div class="meter"><i style="width:' + Math.round(100 * n / tot) + '%;background:' + (c === 'ailleurs' || c === 'luxe' ? 'var(--gold)' : CATS[c].c) + '"></i></div></div>';
-  });
-  h += '</section>';
+  h += catCard();
   return h;
 }
 
