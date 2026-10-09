@@ -889,6 +889,7 @@ function openFriend(id) {
 /* ---------- rendu et navigation ---------- */
 var VIEWS = { today: viewToday, breves: viewBreves, jeux: viewJeux, collection: viewCollection, bilan: viewBilan };
 function render() {
+  $('#view').setAttribute('data-tab', tab);
   $('#view').innerHTML = VIEWS[tab]();
   Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) { if (b.dataset.t === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
 }
@@ -949,6 +950,7 @@ var ACT = {
 };
 document.addEventListener('click', function (ev) {
   if (ev.target.id === 'modal') return closeModal();
+  if (ev.target.id === 'sheet') return closeSheet();
   var el = ev.target.closest('[data-a]'); if (!el || el.disabled) return;
   var fn = ACT[el.dataset.a]; if (fn) fn(el);
 });

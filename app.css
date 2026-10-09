@@ -226,3 +226,42 @@ textarea.field { min-height: 96px; resize: vertical; }
 .duel .row b:last-child { text-align: right; }
 .duel-bars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .duel-bars .left { display: flex; justify-content: flex-end; }
+
+/* ---------- iPad et grands écrans : le contenu s'élargit ---------- */
+@media (min-width: 700px) {
+  #app { max-width: none; }
+  #view { padding-block: 40px 48px; padding-inline: max(28px, calc((100% - 1040px) / 2)); gap: 20px; }
+  #view[data-tab="today"] { padding-inline: max(28px, calc((100% - 700px) / 2)); }
+  #view[data-tab="breves"], #view[data-tab="bilan"] { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); grid-auto-rows: max-content; align-items: start; align-content: start; }
+  #view[data-tab="breves"] > header, #view[data-tab="bilan"] > header { grid-column: 1 / -1; }
+  #view[data-tab="bilan"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .title { font-size: 40px; }
+  .tiles { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+  .tile { min-height: 150px; }
+  .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); column-gap: 28px; }
+  .item:last-child { border-bottom: 1px solid var(--line); }
+  .trophies { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  .cover .art { height: 260px; }
+  .cover .mot { font-size: 38px; }
+  .chips { flex-wrap: wrap; }
+  #sheet { background: rgba(0, 0, 0, 0.5); padding: 40px 24px; }
+  .sheet-in { max-width: 720px; min-height: 0; background: var(--bg); border-radius: 26px; overflow: hidden; }
+  .fiche-hero .art { height: 380px; }
+  .fiche-body { padding-inline: 44px; padding-block: 32px 44px; }
+  .sheet-body { padding-inline: 36px; padding-block: 12px 36px; }
+  .bhero { padding: 16px 44px 36px; }
+  #modal { align-items: center; padding: 24px; }
+  .modal-in { border-radius: 24px; max-width: 460px; }
+  .wgrid { max-width: 520px; }
+  .wgrid button { font-size: 17px; }
+  #toast { bottom: 40px; }
+}
+/* ---------- Mac et iPad en paysage : menu sur le côté ---------- */
+@media (min-width: 1000px) {
+  #app { flex-direction: row; }
+  #tabs { order: -1; flex-direction: column; justify-content: flex-start; gap: 4px; width: 232px; flex-shrink: 0; padding: 28px 14px; border-top: 0; border-right: 1px solid var(--line); background: var(--card); }
+  #tabs::before { content: "Sapere"; font-size: 26px; font-weight: 800; letter-spacing: -0.4px; color: var(--fg); padding: 4px 12px 22px; }
+  #tabs button { flex-direction: row; justify-content: flex-start; gap: 12px; min-height: 46px; padding: 0 12px; font-size: 16px; font-weight: 600; border-radius: 12px; }
+  #tabs button[aria-current="page"] { background: var(--accent-soft); color: var(--accent-ink); }
+  #tabs svg { width: 24px; height: 24px; }
+}
